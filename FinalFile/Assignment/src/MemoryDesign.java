@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class MemoryDesign {
     private final byte toBeInserted = 50;
     private ByteStack newStack = new ByteStack(toBeInserted);
@@ -7,16 +9,16 @@ public class MemoryDesign {
     public short progamCounter;
     //all initialization
 
-    public MemoryDesign(String[] instructionSet) {
+    public MemoryDesign(ArrayList<String> instructionSet) {
 
-        for (int i = 0;i<instructionSet.length;i++) {
-            Memory[i] = (byte) Integer.parseInt(instructionSet[i], 16);
+        for (int i = 0;i<instructionSet.size();i++) {
+            Memory[i] = (byte) Integer.parseInt(instructionSet.get(i), 16);
         }
         //string array transfered to memory by converting to byte
 
         SPR.intializeSpecialPurposeRegister();
         short InstructionRegister = 0;
-        SPR.newSPR[2].value= (short) (instructionSet.length-1);
+        SPR.newSPR[2].value= (short) (instructionSet.size()-1);
         SPR.newSPR[9].value=  progamCounter;
         SPR.newSPR[10].value=  InstructionRegister;
         rollTheDice();
