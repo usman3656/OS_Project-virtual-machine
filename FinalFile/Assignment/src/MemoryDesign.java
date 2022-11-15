@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.Queue;
 import java.util.Stack;
 
-//all initialization//kutte//kaminay
+//all initialization//kutte//kaminay/bsdk
 public class MemoryDesign {
     private final byte toBeInserted = 50;
     private ByteStack newStack = new ByteStack(toBeInserted);
