@@ -10,26 +10,27 @@ public class MainMemory {
             System.out.print("File " + i + ": ");
             for (int j = 0; j < allProcessInstructionSet.get(i).size(); j++)
                 System.out.print(allProcessInstructionSet.get(i).get(j) + " ");
-            MemoryDesign VM = new MemoryDesign(allProcessInstructionSet);
+
             System.out.println();
         }
+        MemoryDesign VM = new MemoryDesign(allProcessInstructionSet);
     }
 
     //Reads All Process
     public static ArrayList readFileProcess() throws IOException {
         ArrayList<ArrayList<String>> allProcesses = new ArrayList<>();
         try {
-            FileInputStream flagFile = new FileInputStream("demofiles\\flags");
+            FileInputStream flagFile = new FileInputStream("FinalFile/Assignment/demofiles/flags");
             allProcesses.add(readFileDecodeFile(flagFile));
-            FileInputStream largeFile = new FileInputStream("demofiles\\large0");
+            FileInputStream largeFile = new FileInputStream("FinalFile/Assignment/demofiles/large0");
             allProcesses.add(readFileDecodeFile(largeFile));
-            FileInputStream noopFile = new FileInputStream("demofiles\\noop");
+            FileInputStream noopFile = new FileInputStream("FinalFile/Assignment/demofiles/noop");
             allProcesses.add(readFileDecodeFile(noopFile));
-            FileInputStream p5File = new FileInputStream("demofiles\\p5");
+            FileInputStream p5File = new FileInputStream("FinalFile/Assignment/demofiles/p5");
             allProcesses.add(readFileDecodeFile(p5File));
-            FileInputStream powerFile = new FileInputStream("demofiles\\power");
+            FileInputStream powerFile = new FileInputStream("FinalFile/Assignment/demofiles/power");
             allProcesses.add(readFileDecodeFile(powerFile));
-            FileInputStream sfullFile = new FileInputStream("demofiles\\sfull");
+            FileInputStream sfullFile = new FileInputStream("FinalFile/Assignment/demofiles/sfull");
             allProcesses.add(readFileDecodeFile(sfullFile));
         }
 
