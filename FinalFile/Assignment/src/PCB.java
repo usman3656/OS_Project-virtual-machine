@@ -1,6 +1,8 @@
 import java.io.FileNotFoundException;
 import java.time.LocalTime;
 import java.util.LinkedList;
+import java.util.List;
+
 public class PCB {
 
         //declaring variables for PCB
@@ -94,7 +96,8 @@ public class PCB {
             instructionsList = new LinkedList<Short>();
         }
         //initializing the variables with the variables
-        public PCB(int processID, String fileName, int processPriority, double processSize, short dataSize, LinkedList<Short> instructions) throws FileNotFoundException {
+        public PCB(List pcb) throws FileNotFoundException {
+            /*int processID, String fileName, int processPriority, double processSize, short dataSize, LinkedList<Short> instructions
             SPRforPCB.intializeSpecialPurposeRegister();
             this.processID = processID;
             this.SPRforPCB.newSPR[1].value = 127 ;
@@ -103,7 +106,7 @@ public class PCB {
             this.processFile = fileName;
             this.instructionsList = instructions;
             this.SPRforPCB.newSPR[9].value = dataSize;
-
+*/
         }
     }
 

@@ -1,8 +1,11 @@
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
+import java.lang.Math;
 
-//all initialization//kutte//kaminay/bsdk
+//all initialization/
 public class MemoryDesign {
     private final byte toBeInserted = 50;
     private ByteStack newStack = new ByteStack(toBeInserted);
@@ -10,14 +13,29 @@ public class MemoryDesign {
     SpecialPurposeRegister SPR = new SpecialPurposeRegister();
     public final byte[] Memory = new byte[65536];
     public short progamCounter;
-//huhuhghuh
+    Boolean[] FreeFrameList = new Boolean[512];
+    int[][] ProcessPages = new int[12][512];
 
-    public MemoryDesign(ArrayList<ArrayList> instructionSet) {
+
+
+
+//
+
+    public MemoryDesign(ArrayList<ArrayList> instructionSet) throws FileNotFoundException {
+
+        for (int i = 0;i<instructionSet.size();i++) {
+            generatePCB(instructionSet.get(i),i);
+            System.out.println((instructionSet.get(i)));
+        }
+
+
+
         //string array transfered to memory by converting to byte
         for (int i = 0;i<instructionSet.size();i++) {
             for (int j = 0; j < instructionSet.get(i).size(); j++)
             Memory[i] = (byte) Integer.parseInt(instructionSet.get(i).get(j).toString(), 16);
         }
+
 
         //initialising spr labels
         SPR.intializeSpecialPurposeRegister();
@@ -26,6 +44,28 @@ public class MemoryDesign {
         SPR.newSPR[9].value=  progamCounter;
         SPR.newSPR[10].value=  InstructionRegister;
         rollTheDice();
+    }
+
+
+    public void generatePCB(ArrayList instructionSet,int pcbNumber) throws FileNotFoundException {
+        PCB[] allPCB = new PCB[6];
+         List setpcb = instructionSet.subList(0,8);
+
+            allPCB[pcbNumber] =new PCB(setpcb);
+        System.out.println(setpcb);
+
+
+    }
+    public void fillpages (ArrayList instructionset,int datasize)
+    {
+        List data = instructionset.subList(8,8+datasize);
+        List code = instructionset.subList(datasize+8,instructionset.size());
+
+        int d = Math.floorDiv(data.size(),128)+1;
+        int c = Math.floorDiv(code.size(),128)+1;
+
+
+
     }
 
     private void rollTheDice(){
