@@ -10,7 +10,7 @@ public class MemoryDesign {
     SpecialPurposeRegister SPR = new SpecialPurposeRegister();
     public final byte[] Memory = new byte[65536];
     public short progamCounter;
-
+//huhuhghuh
 
     public MemoryDesign(ArrayList<ArrayList> instructionSet) {
         //string array transfered to memory by converting to byte
