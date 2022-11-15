@@ -8,8 +8,6 @@ public class PCB {
         short[] GPR = new short[16];
         //Special Purpose Register
         SpecialPurposeRegister SPRforPCB;
-        //Page Table
-        int[][] pageTable;
         //Local time spent at waiting
         int waitingLocalTime;
         //Local time spent at execution
@@ -32,14 +30,6 @@ public class PCB {
 
         public void setGPR(short[] GPR) {
             this.GPR = GPR;
-        }
-
-        public int[][] getPageTable() {
-            return pageTable;
-        }
-
-        public void setPageTable(int[][] pageTable) {
-            this.pageTable = pageTable;
         }
 
         public int getWaitingLocalTime() {
