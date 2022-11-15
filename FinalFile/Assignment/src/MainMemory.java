@@ -7,11 +7,11 @@ public class MainMemory {
         ArrayList<ArrayList> allProcessInstructionSet =readFileProcess();
 
         for (int i = 0; i < allProcessInstructionSet.size();i++) {
-            System.out.print("File " + i + ": " );
-            for (int j = 0; j < allProcessInstructionSet.get(i).size();j++)
+            System.out.print("File " + i + ": ");
+            for (int j = 0; j < allProcessInstructionSet.get(i).size(); j++)
                 System.out.print(allProcessInstructionSet.get(i).get(j) + " ");
-            System.out.println();
             MemoryDesign VM = new MemoryDesign(allProcessInstructionSet);
+            System.out.println();
         }
     }
 

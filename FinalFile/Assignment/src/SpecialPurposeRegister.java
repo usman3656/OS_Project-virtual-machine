@@ -1,16 +1,15 @@
 public class SpecialPurposeRegister {
     public String name;
-    public short value;
+    public int value;
     public SpecialPurposeRegister[] newSPR;
     public boolean[] flag;
 
     public SpecialPurposeRegister(){
-
     }
 
-    public SpecialPurposeRegister(String name){
+    public SpecialPurposeRegister(String name,int valuePassed){
         this.name = name;
-        value = 0;
+        this.value = valuePassed;
     }
 
     public SpecialPurposeRegister(boolean[] flagRegister){
@@ -19,17 +18,17 @@ public class SpecialPurposeRegister {
 
     public void intializeSpecialPurposeRegister(){
         newSPR = new SpecialPurposeRegister[16];
-        newSPR[0] = new SpecialPurposeRegister("Code Base");
-        newSPR[1] = new SpecialPurposeRegister("Code Counter");
-        newSPR[2] = new SpecialPurposeRegister("Code Limit");
-        newSPR[3] = new SpecialPurposeRegister("Data Base");
-        newSPR[4] = new SpecialPurposeRegister("Data Limit");
-        newSPR[5] = new SpecialPurposeRegister("Data Counter");
-        newSPR[6] = new SpecialPurposeRegister("Stack Base");
-        newSPR[7] = new SpecialPurposeRegister("Stack Counter");
-        newSPR[8] = new SpecialPurposeRegister("Stack Limit");
-        newSPR[9] = new SpecialPurposeRegister("Program Counter");
-        newSPR[10] = new SpecialPurposeRegister("Instruction Register");
+        newSPR[0] = new SpecialPurposeRegister("Code Base",0);
+        newSPR[1] = new SpecialPurposeRegister("Code Counter",0);
+        newSPR[2] = new SpecialPurposeRegister("Code Limit",0);
+        newSPR[3] = new SpecialPurposeRegister("Data Base",0);
+        newSPR[4] = new SpecialPurposeRegister("Data Limit",0);
+        newSPR[5] = new SpecialPurposeRegister("Data Counter",0);
+        newSPR[6] = new SpecialPurposeRegister("Stack Base",0);
+        newSPR[7] = new SpecialPurposeRegister("Stack Counter",0);
+        newSPR[8] = new SpecialPurposeRegister("Stack Limit",0);
+        newSPR[9] = new SpecialPurposeRegister("Program Counter",0);
+        newSPR[10] = new SpecialPurposeRegister("Instruction Register",0);
         boolean[] flagRegister = new boolean[16];
         newSPR[11] = new SpecialPurposeRegister(flagRegister) ;
     }
