@@ -9,7 +9,7 @@ public class PCB {
         //General Purpose Register
         short[] GPR = new short[16];
         //Special Purpose Register
-        SpecialPurposeRegister SPRforPCB;
+        SpecialPurposeRegister SPRforPCB = new SpecialPurposeRegister();
         //Local time spent at waiting
         int waitingLocalTime;
         //Local time spent at execution
@@ -18,8 +18,10 @@ public class PCB {
         private LinkedList<Short> instructionsList;
         //declaring process ID
         int processID;
-        //declaring process size code+data+segment
-        double processSize;
+        //declaring process data
+        double processDataSize;
+        //declaring process data
+        double processCodeSize;
         //declaring process priority
         int processPriority;
         //declaring process file
@@ -62,16 +64,16 @@ public class PCB {
             return processID;
         }
 
-        public void setProcessID() {
-            this.processID = (int) (Math.random() * 10000);
+        public void setProcessID(int processID) {
+            this.processID = processID;
         }
 
-        public double getProcessSize() {
-            return processSize;
+        public double getProcessDataSize() {
+            return processDataSize;
         }
 
-        public void setProcessSize(double processSize) {
-            this.processSize = processSize;
+        public void setProcessDataSize(double processDataSize) {
+            this.processDataSize = processDataSize;
         }
 
         public int getProcessPriority() {
@@ -92,21 +94,15 @@ public class PCB {
 
         //default constructor
         public PCB() {
-            setProcessID();
             instructionsList = new LinkedList<Short>();
         }
         //initializing the variables with the variables
-        public PCB(List pcb) throws FileNotFoundException {
-            /*int processID, String fileName, int processPriority, double processSize, short dataSize, LinkedList<Short> instructions
+        public PCB(String[] pcbKit, int instructionSize) throws FileNotFoundException {
             SPRforPCB.intializeSpecialPurposeRegister();
-            this.processID = processID;
-            this.SPRforPCB.newSPR[1].value = 127 ;
-            this.processPriority = processPriority;
-            this.processSize = processSize;
-            this.processFile = fileName;
-            this.instructionsList = instructions;
-            this.SPRforPCB.newSPR[9].value = dataSize;
-*/
+            setProcessPriority(Integer.parseInt(pcbKit[0]));
+            setProcessID(Integer.parseInt(pcbKit[1]+pcbKit[2]));
+            setProcessDataSize(Integer.parseInt(pcbKit[3]+pcbKit[4]));
+            setProcessDataSize(instructionSize);
         }
     }
 
