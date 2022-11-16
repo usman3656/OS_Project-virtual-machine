@@ -21,14 +21,11 @@ public class MemoryDesign {
         // Generating PCB For All Processes
         //------------------------------------------------
         for (int i = 0;i<instructionSet.size();i++) {
-            generatePCB(instructionSet.get(i),i);
+            generatePCB(instructionSet.get(i), i);
 
-            fillpages(instructionSet.get(i),datasize);
+            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize());
             System.out.println((instructionSet.get(i)));
         }
-
-        fillpages();
-
 
 
         //------------------------------------------------
