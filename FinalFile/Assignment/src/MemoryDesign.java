@@ -110,6 +110,7 @@ public class MemoryDesign {
 
             freeFrameList[z] = true;
             processPages[2*processnum+1][i] = z+1;
+            //usman
 
             checknextfreepage();
             if (i < c - 1) {
