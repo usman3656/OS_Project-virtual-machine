@@ -1,8 +1,5 @@
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Stack;
+import java.util.*;
 import java.lang.Math;
 
 //all initialization/
@@ -15,19 +12,24 @@ public class MemoryDesign {
     public final byte[] Memory = new byte[65536];
     public short progamCounter;
     boolean[] freeFrameList = new boolean[512];
-    int[][] processPages = new int[12][512];
+    int[][] processPages = new int[12][12];
 
     public MemoryDesign(ArrayList<ArrayList> instructionSet) throws FileNotFoundException {
         // Generating PCB For All Processes
         //------------------------------------------------
+        System.out.println();
+
+
+
         for (int i = 0;i<instructionSet.size();i++) {
             generatePCB(instructionSet.get(i), i);
 
-            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize());
-            System.out.println((instructionSet.get(i)));
+            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(),(int)allPCB[i].getProcessCodeSize(),i);
+
+
         }
-
-
+        System.out.println(Arrays.deepToString(processPages));
+        System.out.println(Arrays.toString(freeFrameList));
         //------------------------------------------------
         //string array transfered to memory by converting to byte
         for (int i = 0;i<instructionSet.size();i++) {
@@ -57,37 +59,72 @@ public class MemoryDesign {
         allPCB[pcbNumber] = new PCB(pcbKit,instructionSet.size());
     }
 
-    public void fillpages (ArrayList instructionset,int datasize)
+    public void fillpages (ArrayList instructionset,int datasize,int codesize,int processnum)
     {
-        byte[] data ;
-        byte[] code ;
-            data = instructionset.subList(8,8+datasize).toString().getBytes();
-            code = instructionset.subList(8,8+datasize).toString().getBytes();
+
+        byte[] data = new byte[datasize];
+        byte[] code  = new byte[codesize];
+        System.out.println();
+
+
+        for(int i =8;i<datasize+8;i++){
+        data[i-8] = (byte)Integer.parseInt(instructionset.get(i).toString(),16);
+    }
+        for(int i =datasize+8;i<8+datasize+codesize;i++){
+            code[i-datasize-8] = (byte)Integer.parseInt(instructionset.get(i).toString(),16);
+        }
+
+
+     /*   System.out.println(Arrays.toString(data));
+        System.out.println(Arrays.toString(code));*/
 
 
 
         int d = Math.floorDiv(data.length,128)+1;
         int c = Math.floorDiv(code.length,128)+1;
 
-        for (int i=0;i<d;i++)
-        {
-            checknextfreepage();
-            for (int x=0;x<128;x++)
-            {
-                Memory[i*128+x]= data[x];
-            }
-        }
-        for (int i=0;i<c;i++)
-        {
-            checknextfreepage();
-            for (int x=0;x<128;x++)
-            {
-                Memory[i*128+x]= code[x];
-            }
-        }
-        System.out.println(Memory);
+        int dx = Math.floorMod(data.length,128);
+        int cx = Math.floorMod(data.length,128);
+
+        for (int i=0;i<d;i++) {
+            int z = checknextfreepage();
+            freeFrameList[z] = true;
+            processPages[processnum*2][i] = z+1;
 
 
+            if (i < d - 1) {
+                for (int x = 0; x < 128; x++) {
+                    Memory[z * 128 + x] = data[i*128+x];
+                }
+            } else {
+
+                for (int x = 0; x < dx; x++) {
+
+                    Memory[z * 128 + x] = data[i*128+x];
+                }
+            }
+        }
+
+        for (int i=0;i<c;i++) {
+            int z = checknextfreepage();
+
+            freeFrameList[z] = true;
+            processPages[2*processnum+1][i] = z+1;
+
+            checknextfreepage();
+            if (i < c - 1) {
+                for (int x = 0; x < 128; x++) {
+
+                    Memory[z * 128 + x] = code[i*128+x];
+                }
+            } else {
+
+                for (int x = 0; x < cx; x++) {
+
+                    Memory[z * 128 + x] = code[i*128+x];
+                }
+            }
+        }
 
 
     }

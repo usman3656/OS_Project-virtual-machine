@@ -114,11 +114,11 @@ public class PCB {
         //initializing the variables with the variables
         public PCB(String[] pcbKit, int instructionSize) throws FileNotFoundException {
             SPRforPCB.intializeSpecialPurposeRegister();
-            setProcessPriority(Integer.parseInt(pcbKit[0]));
+            setProcessPriority(Integer.parseInt(pcbKit[0],16));
             setProcessID(Integer.parseInt(pcbKit[1]+pcbKit[2],16));
             setProcessDataSize(Integer.parseInt(pcbKit[3]+pcbKit[4],16));
-            setProcessCodeSize();
             setProcessSize(instructionSize);
+            setProcessCodeSize();
         }
     }
 
