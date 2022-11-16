@@ -22,6 +22,8 @@ public class PCB {
         double processDataSize;
         //declaring process data
         double processCodeSize;
+        //declaring Overall Process Size
+        double processSize;
         //declaring process priority
         int processPriority;
         //declaring process file
@@ -71,11 +73,23 @@ public class PCB {
         public double getProcessDataSize() {
             return processDataSize;
         }
-
         public void setProcessDataSize(double processDataSize) {
             this.processDataSize = processDataSize;
         }
 
+        public double getProcessCodeSize() {
+            return this.processCodeSize;
+        }
+        public void setProcessCodeSize() {
+            this.processCodeSize = getProcessSize() - getProcessDataSize() - 8;
+        }
+
+        public double getProcessSize() {
+            return this.processSize;
+        }
+        public void setProcessSize(int processSize) {
+            this.processSize = processSize;
+        }
         public int getProcessPriority() {
             return processPriority;
         }
@@ -83,6 +97,7 @@ public class PCB {
         public void setProcessPriority(int processPriority) {
             this.processPriority = processPriority;
         }
+
 
         public String getProcessFile() {
             return processFile;
@@ -102,7 +117,8 @@ public class PCB {
             setProcessPriority(Integer.parseInt(pcbKit[0]));
             setProcessID(Integer.parseInt(pcbKit[1]+pcbKit[2],16));
             setProcessDataSize(Integer.parseInt(pcbKit[3]+pcbKit[4],16));
-            setProcessDataSize(instructionSize);
+            setProcessCodeSize();
+            setProcessSize(instructionSize);
         }
     }
 
