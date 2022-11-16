@@ -1,6 +1,10 @@
 public class PagingMemory {
     //Page Table
+    PCB table;
+    int dataStartPage;
+    int codeStartPage;
     int[][] pageTable;
+
 
     public PagingMemory(){
 

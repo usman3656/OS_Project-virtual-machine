@@ -91,7 +91,10 @@ public class PCB {
             this.processSize = processSize;
         }
         public int getProcessPriority() {
-            return processPriority;
+            if (this.processPriority > 0 || this.processPriority < 31)
+                return processPriority;
+            else
+                return -1;
         }
 
         public void setProcessPriority(int processPriority) {

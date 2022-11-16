@@ -10,7 +10,6 @@ public class MainMemory {
             System.out.print("File " + i + ": ");
             for (int j = 0; j < allProcessInstructionSet.get(i).size(); j++)
                 System.out.print(allProcessInstructionSet.get(i).get(j) + " ");
-
             System.out.println();
         }
         MemoryDesign VM = new MemoryDesign(allProcessInstructionSet);

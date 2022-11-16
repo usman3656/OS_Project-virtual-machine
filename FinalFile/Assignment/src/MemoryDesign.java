@@ -1,6 +1,10 @@
 import java.io.FileNotFoundException;
 import java.util.*;
 import java.lang.Math;
+import java.util.Queue;
+import java.util.PriorityQueue;
+import java.util.Stack;
+import java.util.ArrayList;
 
 //all initialization/
 public class MemoryDesign {
@@ -13,65 +17,50 @@ public class MemoryDesign {
     public short progamCounter;
     boolean[] freeFrameList = new boolean[512];
     int[][] processPages = new int[12][12];
+    //-----------------------------------------
+    Queue<PCB> highPriorityQueue;
+    Queue<PCB> lowPriorityQueue;
+    Queue<PCB> runningQueue;
 
     public MemoryDesign(ArrayList<ArrayList> instructionSet) throws FileNotFoundException {
         // Generating PCB For All Processes
         //------------------------------------------------
-        System.out.println();
-
-
-
-        for (int i = 0;i<instructionSet.size();i++) {
+        for (int i = 0; i < instructionSet.size(); i++) {
             generatePCB(instructionSet.get(i), i);
-
-            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(),(int)allPCB[i].getProcessCodeSize(),i);
-
-
+            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(), (int) allPCB[i].getProcessCodeSize(), i);
+            populateQueue(i, allPCB[i].getProcessPriority());
         }
-        System.out.println(Arrays.deepToString(processPages));
-        System.out.println(Arrays.toString(freeFrameList));
+
         //------------------------------------------------
-        //string array transfered to memory by converting to byte
-        for (int i = 0;i<instructionSet.size();i++) {
-            for (int j = 0; j < instructionSet.get(i).size(); j++)
-            Memory[i] = (byte) Integer.parseInt(instructionSet.get(i).get(j).toString(), 16);
-        }
-
-
         //initialising spr labels
         SPR.intializeSpecialPurposeRegister();
         short InstructionRegister = 0;
-        SPR.newSPR[2].value= (short) (instructionSet.size()-1);
-        SPR.newSPR[9].value=  progamCounter;
-        SPR.newSPR[10].value=  InstructionRegister;
-        rollTheDice();
-
-
-
-
+        SPR.newSPR[2].value = (short) (instructionSet.size() - 1);
+        SPR.newSPR[9].value = progamCounter;
+        SPR.newSPR[10].value = InstructionRegister;
+        //rollTheDice();
     }
 
 
-    public void generatePCB(ArrayList<String> instructionSet,int pcbNumber) throws FileNotFoundException {
+    public void generatePCB(ArrayList<String> instructionSet, int pcbNumber) throws FileNotFoundException {
         String[] pcbKit = new String[8];
-        for (int processByte = 0; processByte < 8;processByte++)
+        for (int processByte = 0; processByte < 8; processByte++)
             pcbKit[processByte] = instructionSet.get(processByte);
-        allPCB[pcbNumber] = new PCB(pcbKit,instructionSet.size());
+        allPCB[pcbNumber] = new PCB(pcbKit, instructionSet.size());
     }
 
-    public void fillpages (ArrayList instructionset,int datasize,int codesize,int processnum)
-    {
+    public void fillpages(ArrayList instructionset, int datasize, int codesize, int processnum) {
 
         byte[] data = new byte[datasize];
-        byte[] code  = new byte[codesize];
+        byte[] code = new byte[codesize];
         System.out.println();
 
 
-        for(int i =8;i<datasize+8;i++){
-        data[i-8] = (byte)Integer.parseInt(instructionset.get(i).toString(),16);
-    }
-        for(int i =datasize+8;i<8+datasize+codesize;i++){
-            code[i-datasize-8] = (byte)Integer.parseInt(instructionset.get(i).toString(),16);
+        for (int i = 8; i < datasize + 8; i++) {
+            data[i - 8] = (byte) Integer.parseInt(instructionset.get(i).toString(), 16);
+        }
+        for (int i = datasize + 8; i < 8 + datasize + codesize; i++) {
+            code[i - datasize - 8] = (byte) Integer.parseInt(instructionset.get(i).toString(), 16);
         }
 
 
@@ -79,50 +68,51 @@ public class MemoryDesign {
         System.out.println(Arrays.toString(code));*/
 
 
+        int d = Math.floorDiv(data.length, 128) + 1;
+        int c = Math.floorDiv(code.length, 128) + 1;
 
-        int d = Math.floorDiv(data.length,128)+1;
-        int c = Math.floorDiv(code.length,128)+1;
+        int dx = Math.floorMod(data.length, 128);
+        int cx = Math.floorMod(data.length, 128);
 
-        int dx = Math.floorMod(data.length,128);
-        int cx = Math.floorMod(data.length,128);
-
-        for (int i=0;i<d;i++) {
+        for (int i = 0; i < d; i++) {
             int z = checknextfreepage();
             freeFrameList[z] = true;
-            processPages[processnum*2][i] = z+1;
+            processPages[processnum * 2][i] = z + 1;
 
 
             if (i < d - 1) {
                 for (int x = 0; x < 128; x++) {
-                    Memory[z * 128 + x] = data[i*128+x];
+                    Memory[z * 128 + x] = data[i * 128 + x];
                 }
-            } else {
+            }
+            else {
 
                 for (int x = 0; x < dx; x++) {
 
-                    Memory[z * 128 + x] = data[i*128+x];
+                    Memory[z * 128 + x] = data[i * 128 + x];
                 }
             }
         }
 
-        for (int i=0;i<c;i++) {
+        for (int i = 0; i < c; i++) {
             int z = checknextfreepage();
 
             freeFrameList[z] = true;
-            processPages[2*processnum+1][i] = z+1;
-            //usman
+            processPages[2 * processnum + 1][i] = z + 1;
+
 
             checknextfreepage();
             if (i < c - 1) {
                 for (int x = 0; x < 128; x++) {
 
-                    Memory[z * 128 + x] = code[i*128+x];
+                    Memory[z * 128 + x] = code[i * 128 + x];
                 }
-            } else {
+            }
+            else {
 
                 for (int x = 0; x < cx; x++) {
 
-                    Memory[z * 128 + x] = code[i*128+x];
+                    Memory[z * 128 + x] = code[i * 128 + x];
                 }
             }
         }
@@ -130,21 +120,48 @@ public class MemoryDesign {
 
     }
 
-    public int checknextfreepage()
-    {
+    public int checknextfreepage() {
         int i = 0;
-        do{
-            if (freeFrameList[i] == false)
-            {
+        do {
+            if (freeFrameList[i] == false) {
                 return i;
 
 
             }
             i++;
 
-        }while(i<= freeFrameList.length);
+        } while (i <= freeFrameList.length);
         return -1;
     }
+
+    public void populateQueue(int processNumber, double processPriority) {
+        createQueue();
+        if (processPriority >= 0 && processPriority <= 15)
+            highPriorityQueue.add(allPCB[(processNumber)]);
+        else if (processPriority >= 16 && processPriority <= 31)
+            lowPriorityQueue.add(allPCB[processNumber]);
+        else
+            System.out.println("Invalid Priority");
+    }
+
+    public void createQueue() {
+        highPriorityQueue = new LinkedList<>();
+        lowPriorityQueue = new LinkedList<>();
+        runningQueue = new LinkedList();
+    }
+
+    public void startTheProcesses() {
+        while (highPriorityQueue.peek() != null && lowPriorityQueue.peek() != null) {
+            if (highPriorityQueue.peek() != null) {
+                highPriorityQueue.remove();
+            }
+            else if (lowPriorityQueue.peek() != null) {
+                lowPriorityQueue.remove();
+            }
+        }
+    }
+}
+/*
 
     private void rollTheDice(){
         do {
@@ -587,3 +604,4 @@ public class MemoryDesign {
             return Integer.parseInt(letter);
     }
 }
+*/
