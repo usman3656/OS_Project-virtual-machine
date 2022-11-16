@@ -13,8 +13,8 @@ public class MemoryDesign {
     SpecialPurposeRegister SPR = new SpecialPurposeRegister();
     public final byte[] Memory = new byte[65536];
     public short progamCounter;
-    Boolean[] FreeFrameList = new Boolean[512];
-    int[][] ProcessPages = new int[12][512];
+    boolean[] freeFrameList = new boolean[512];
+    int[][] processPages = new int[12][512];
 
 
 
@@ -25,8 +25,12 @@ public class MemoryDesign {
 
         for (int i = 0;i<instructionSet.size();i++) {
             generatePCB(instructionSet.get(i),i);
+
+            fillpages(instructionSet.get(i),datasize);
             System.out.println((instructionSet.get(i)));
         }
+
+        fillpages();
 
 
 
@@ -44,13 +48,16 @@ public class MemoryDesign {
         SPR.newSPR[9].value=  progamCounter;
         SPR.newSPR[10].value=  InstructionRegister;
         rollTheDice();
+
+
+
+
     }
 
 
-    public void generatePCB(ArrayList instructionSet,int pcbNumber) throws FileNotFoundException {
+    public int generatePCB(ArrayList instructionSet,int pcbNumber) throws FileNotFoundException {
         PCB[] allPCB = new PCB[6];
          List setpcb = instructionSet.subList(0,8);
-
             allPCB[pcbNumber] =new PCB(setpcb);
         System.out.println(setpcb);
 
@@ -58,14 +65,53 @@ public class MemoryDesign {
     }
     public void fillpages (ArrayList instructionset,int datasize)
     {
-        List data = instructionset.subList(8,8+datasize);
-        List code = instructionset.subList(datasize+8,instructionset.size());
-
-        int d = Math.floorDiv(data.size(),128)+1;
-        int c = Math.floorDiv(code.size(),128)+1;
-
+        byte[] data ;
+        byte[] code ;
+            data = instructionset.subList(8,8+datasize).toString().getBytes();
+            code = instructionset.subList(8,8+datasize).toString().getBytes();
 
 
+
+        int d = Math.floorDiv(data.length,128)+1;
+        int c = Math.floorDiv(code.length,128)+1;
+
+        for (int i=0;i<d;i++)
+        {
+            checknextfreepage();
+            for (int x=0;x<128;x++)
+            {
+                Memory[i*128+x]= data[x];
+            }
+        }
+        for (int i=0;i<c;i++)
+        {
+            checknextfreepage();
+            for (int x=0;x<128;x++)
+            {
+                Memory[i*128+x]= code[x];
+            }
+        }
+        System.out.println(Memory);
+
+
+
+
+    }
+
+    public int checknextfreepage()
+    {
+        int i = 0;
+        do{
+            if (freeFrameList[i] == false)
+            {
+                return i;
+
+
+            }
+            i++;
+
+        }while(i<= freeFrameList.length);
+        return -1;
     }
 
     private void rollTheDice(){
