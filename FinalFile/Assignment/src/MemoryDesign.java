@@ -11,20 +11,17 @@ public class MemoryDesign {
     SpecialPurposeRegister SPR = new SpecialPurposeRegister();
     public final byte[] Memory = new byte[65536];
     public short progamCounter;
-    boolean[] freeFrameList = new boolean[512];
-    int[][] processPages = new int[12][12];
+    boolean[] freeFrameList = new boolean[512];int[][] processPages = new int[12][13];
 
     public MemoryDesign(ArrayList<ArrayList> instructionSet) throws FileNotFoundException {
         // Generating PCB For All Processes
-        //------------------------------------------------
-        System.out.println();
-
+        //-----------------------------------------------
 
 
         for (int i = 0;i<instructionSet.size();i++) {
             generatePCB(instructionSet.get(i), i);
 
-            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(),(int)allPCB[i].getProcessCodeSize(),i);
+            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(),(int)allPCB[i].getProcessCodeSize(),i,(int)allPCB[i].getProcessID());
 
 
         }
@@ -59,7 +56,7 @@ public class MemoryDesign {
         allPCB[pcbNumber] = new PCB(pcbKit,instructionSet.size());
     }
 
-    public void fillpages (ArrayList instructionset,int datasize,int codesize,int processnum)
+    public void fillpages (ArrayList instructionset,int datasize,int codesize,int processnum,int processid)
     {
 
         byte[] data = new byte[datasize];
@@ -79,17 +76,19 @@ public class MemoryDesign {
         System.out.println(Arrays.toString(code));*/
 
 
-
         int d = Math.floorDiv(data.length,128)+1;
         int c = Math.floorDiv(code.length,128)+1;
 
         int dx = Math.floorMod(data.length,128);
         int cx = Math.floorMod(data.length,128);
 
+        processPages[processnum*2][0]=processid;
+        processPages[processnum*2+1][0]=processid;
+
         for (int i=0;i<d;i++) {
             int z = checknextfreepage();
             freeFrameList[z] = true;
-            processPages[processnum*2][i] = z+1;
+            processPages[processnum*2][i+1] = z+1;
 
 
             if (i < d - 1) {
@@ -109,7 +108,7 @@ public class MemoryDesign {
             int z = checknextfreepage();
 
             freeFrameList[z] = true;
-            processPages[2*processnum+1][i] = z+1;
+            processPages[2*processnum+1][i+1] = z+1;
             //usman
 
             checknextfreepage();
