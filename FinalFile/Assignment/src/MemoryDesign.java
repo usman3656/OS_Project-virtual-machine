@@ -1,10 +1,6 @@
 import java.io.FileNotFoundException;
 import java.util.*;
 import java.lang.Math;
-import java.util.Queue;
-import java.util.PriorityQueue;
-import java.util.Stack;
-import java.util.ArrayList;
 
 //all initialization/
 public class MemoryDesign {
@@ -25,20 +21,38 @@ public class MemoryDesign {
     public MemoryDesign(ArrayList<ArrayList> instructionSet) throws FileNotFoundException {
         // Generating PCB For All Processes
         //------------------------------------------------
-        for (int i = 0; i < instructionSet.size(); i++) {
+        System.out.println();
+
+
+
+        for (int i = 0;i<instructionSet.size();i++) {
             generatePCB(instructionSet.get(i), i);
-            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(), (int) allPCB[i].getProcessCodeSize(), i);
-            populateQueue(i, allPCB[i].getProcessPriority());
+
+            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(),(int)allPCB[i].getProcessCodeSize(),i);
+
+
+        }
+        System.out.println(Arrays.deepToString(processPages));
+        System.out.println(Arrays.toString(freeFrameList));
+        //------------------------------------------------
+        //string array transfered to memory by converting to byte
+        for (int i = 0;i<instructionSet.size();i++) {
+            for (int j = 0; j < instructionSet.get(i).size(); j++)
+            Memory[i] = (byte) Integer.parseInt(instructionSet.get(i).get(j).toString(), 16);
         }
 
-        //------------------------------------------------
+
         //initialising spr labels
         SPR.intializeSpecialPurposeRegister();
         short InstructionRegister = 0;
-        SPR.newSPR[2].value = (short) (instructionSet.size() - 1);
-        SPR.newSPR[9].value = progamCounter;
-        SPR.newSPR[10].value = InstructionRegister;
-        //rollTheDice();
+        SPR.newSPR[2].value= (short) (instructionSet.size()-1);
+        SPR.newSPR[9].value=  progamCounter;
+        SPR.newSPR[10].value=  InstructionRegister;
+        rollTheDice();
+
+
+
+
     }
 
 
@@ -49,7 +63,8 @@ public class MemoryDesign {
         allPCB[pcbNumber] = new PCB(pcbKit, instructionSet.size());
     }
 
-    public void fillpages(ArrayList instructionset, int datasize, int codesize, int processnum) {
+    public void fillpages (ArrayList instructionset,int datasize,int codesize,int processnum,int processid)
+    {
 
         byte[] data = new byte[datasize];
         byte[] code = new byte[codesize];
@@ -94,7 +109,7 @@ public class MemoryDesign {
             }
         }
 
-        for (int i = 0; i < c; i++) {
+        for (int i=0;i<c;i++) {
             int z = checknextfreepage();
 
             freeFrameList[z] = true;
@@ -130,7 +145,7 @@ public class MemoryDesign {
             }
             i++;
 
-        } while (i <= freeFrameList.length);
+        }while(i<= freeFrameList.length);
         return -1;
     }
 
@@ -604,4 +619,3 @@ public class MemoryDesign {
             return Integer.parseInt(letter);
     }
 }
-*/
