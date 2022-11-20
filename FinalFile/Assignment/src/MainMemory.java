@@ -12,6 +12,7 @@ public class MainMemory {
                 System.out.print(allProcessInstructionSet.get(i).get(j) + " ");
             System.out.println();
         }
+        System.out.println("-----------------------------------------");
         MemoryDesign VM = new MemoryDesign(allProcessInstructionSet);
     }
 

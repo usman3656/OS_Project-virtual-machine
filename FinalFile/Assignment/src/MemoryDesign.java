@@ -28,7 +28,7 @@ public class MemoryDesign {
         for (int i = 0;i<instructionSet.size();i++) {
             generatePCB(instructionSet.get(i), i);
 
-            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(),(int)allPCB[i].getProcessCodeSize(),i);
+            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(),(int)allPCB[i].getProcessCodeSize(),i,allPCB[i].getProcessID());
 
 
         }
@@ -40,6 +40,9 @@ public class MemoryDesign {
             for (int j = 0; j < instructionSet.get(i).size(); j++)
             Memory[i] = (byte) Integer.parseInt(instructionSet.get(i).get(j).toString(), 16);
         }
+        System.out.println(Arrays.toString(Memory));
+        System.out.println();
+        System.out.println(Arrays.deepToString(processPages));
 
 
         //initialising spr labels
@@ -48,7 +51,7 @@ public class MemoryDesign {
         SPR.newSPR[2].value= (short) (instructionSet.size()-1);
         SPR.newSPR[9].value=  progamCounter;
         SPR.newSPR[10].value=  InstructionRegister;
-        rollTheDice();
+        //rollTheDice();
 
 
 
@@ -619,3 +622,5 @@ public class MemoryDesign {
             return Integer.parseInt(letter);
     }
 }
+
+ */
