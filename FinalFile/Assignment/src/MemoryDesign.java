@@ -22,28 +22,11 @@ public class MemoryDesign {
         // Generating PCB For All Processes
         //------------------------------------------------
         System.out.println();
-
-
-
         for (int i = 0;i<instructionSet.size();i++) {
             generatePCB(instructionSet.get(i), i);
-
             fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(),(int)allPCB[i].getProcessCodeSize(),i,allPCB[i].getProcessID());
-
-
+            populateQueue(i,allPCB[i].processPriority);
         }
-        System.out.println(Arrays.deepToString(processPages));
-        System.out.println(Arrays.toString(freeFrameList));
-        //------------------------------------------------
-        //string array transfered to memory by converting to byte
-        for (int i = 0;i<instructionSet.size();i++) {
-            for (int j = 0; j < instructionSet.get(i).size(); j++)
-            Memory[i] = (byte) Integer.parseInt(instructionSet.get(i).get(j).toString(), 16);
-        }
-        System.out.println(Arrays.toString(Memory));
-        System.out.println();
-        System.out.println(Arrays.deepToString(processPages));
-
 
         //initialising spr labels
         SPR.intializeSpecialPurposeRegister();
@@ -134,8 +117,6 @@ public class MemoryDesign {
                 }
             }
         }
-
-
     }
 
     public int checknextfreepage() {
@@ -143,11 +124,8 @@ public class MemoryDesign {
         do {
             if (freeFrameList[i] == false) {
                 return i;
-
-
             }
             i++;
-
         }while(i<= freeFrameList.length);
         return -1;
     }
