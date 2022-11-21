@@ -13,6 +13,7 @@ public class MemoryDesign {
     public short progamCounter;
     boolean[] freeFrameList = new boolean[512];
     int[][] processPages = new int[12][13];
+    ArrayList[] infoAboutPCB = new ArrayList[2];
     //-----------------------------------------
     Queue<PCB> highPriorityQueue;
     Queue<PCB> lowPriorityQueue;
@@ -22,32 +23,73 @@ public class MemoryDesign {
         // Generating PCB For All Processes
         //------------------------------------------------
         System.out.println();
-        for (int i = 0;i<instructionSet.size();i++) {
+        createQueue();
+        for (int i = 0; i < instructionSet.size(); i++) {
             generatePCB(instructionSet.get(i), i);
-            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(),(int)allPCB[i].getProcessCodeSize(),i,allPCB[i].getProcessID());
-            populateQueue(i,allPCB[i].processPriority);
+            fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(), (int) allPCB[i].getProcessCodeSize(), i, allPCB[i].getProcessID());
+            populateQueue(i, allPCB[i].processPriority);
         }
+
         PCB currentPCB = null;
         do {
             currentPCB = findMyPCB();
-            extractInfo(currentPCB);
+            if (currentPCB != null) {
+                System.out.println(currentPCB.getProcessID());
+                runningQueue.add(currentPCB);
+                rollTheDice(runningQueue);
+            }
 
-        }while (findMyPCB() != null);
+        } while (currentPCB != null);
         System.out.println(Arrays.deepToString(processPages));
     }
 
-    public void extractInfo(PCB currentPCB) {
-        int priorityToMatch = currentPCB.getProcessID();
-        for (int i = 0; i < processPages.length; i++){
-            for (int j = 0; j < processPages[i].length; j++) {
-                if (processPages[i][j] == priorityToMatch) {
-
-                }
-                else
-                    break;
+    public ArrayList[] extractInfo(PCB currentPCB) {
+        int idToMatch = currentPCB.getProcessID();
+        int datasize = (int) currentPCB.getProcessDataSize();
+        System.out.println(datasize);
+        int i;
+        for (i = 0; i < processPages.length; i = i + 2) {
+            if (idToMatch == processPages[i][0]) {
+                break;
             }
         }
+        int d = 1;
+        int pagenum;
+        ArrayList datalist = new ArrayList();
+        while (processPages[i][d] != 0) {
+            pagenum = processPages[i][d];
+            System.out.println(pagenum);
+            for (int j = 0; j < 128; j++) {
+                datalist.add(Memory[(pagenum - 1) * 128 + j]);
+            }
+            d++;
+
+        }
+        System.out.println(datalist);
+        int codesize = (int) currentPCB.getProcessDataSize();
+        System.out.println();
+        System.out.println(codesize);
+
+        int c = 1;
+        int pagenumcode;
+        ArrayList codelist = new ArrayList();
+        while (processPages[i + 1][c] != 0) {
+            pagenumcode = processPages[i + 1][c];
+            System.out.println(pagenumcode);
+            for (int j = 0; j < 128; j++) {
+                codelist.add(Memory[(pagenumcode - 1) * 128 + j]);
+            }
+            c++;
+
+        }
+        System.out.println(codelist);
+        infoAboutPCB[0] = datalist;
+        infoAboutPCB[1] = codelist;
+
+        return infoAboutPCB;
+
     }
+
 
     public void generatePCB(ArrayList<String> instructionSet, int pcbNumber) throws FileNotFoundException {
         String[] pcbKit = new String[8];
@@ -56,8 +98,7 @@ public class MemoryDesign {
         allPCB[pcbNumber] = new PCB(pcbKit, instructionSet.size());
     }
 
-    public void fillpages (ArrayList instructionset,int datasize,int codesize,int processnum,int processid)
-    {
+    public void fillpages(ArrayList instructionset, int datasize, int codesize, int processnum, int processid) {
         byte[] data = new byte[datasize];
         byte[] code = new byte[codesize];
         System.out.println();
@@ -80,22 +121,21 @@ public class MemoryDesign {
         int dx = Math.floorMod(data.length, 128);
         int cx = Math.floorMod(data.length, 128);
 
-        processPages[processnum*2][0]=processid;
-        processPages[processnum*2+1][0]=processid;
+        processPages[processnum * 2][0] = processid;
+        processPages[processnum * 2 + 1][0] = processid;
 
 
         for (int i = 0; i < d; i++) {
             int z = checknextfreepage();
             freeFrameList[z] = true;
-            processPages[processnum*2][i+1] = z+1;
+            processPages[processnum * 2][i + 1] = z + 1;
 
 
             if (i < d - 1) {
                 for (int x = 0; x < 128; x++) {
                     Memory[z * 128 + x] = data[i * 128 + x];
                 }
-            }
-            else {
+            } else {
 
                 for (int x = 0; x < dx; x++) {
                     Memory[z * 128 + x] = data[i * 128 + x];
@@ -103,10 +143,10 @@ public class MemoryDesign {
             }
         }
 
-        for (int i=0;i<c;i++) {
+        for (int i = 0; i < c; i++) {
             int z = checknextfreepage();
             freeFrameList[z] = true;
-            processPages[2 * processnum + 1][i+1] = z + 1;
+            processPages[2 * processnum + 1][i + 1] = z + 1;
 
             checknextfreepage();
             if (i < c - 1) {
@@ -114,8 +154,7 @@ public class MemoryDesign {
 
                     Memory[z * 128 + x] = code[i * 128 + x];
                 }
-            }
-            else {
+            } else {
 
                 for (int x = 0; x < cx; x++) {
 
@@ -132,42 +171,61 @@ public class MemoryDesign {
                 return i;
             }
             i++;
-        }while(i<= freeFrameList.length);
+        } while (i <= freeFrameList.length);
         return -1;
     }
 
     public void populateQueue(int processNumber, double processPriority) {
-        createQueue();
+
         if (processPriority >= 0 && processPriority <= 15)
             highPriorityQueue.add(allPCB[(processNumber)]);
         else if (processPriority >= 16 && processPriority <= 31)
             lowPriorityQueue.add(allPCB[processNumber]);
         else
             System.out.println("Invalid Priority");
+
+        if (!highPriorityQueue.isEmpty()) {
+            System.out.println("high" + highPriorityQueue.peek().getProcessID());
+            System.out.println("low " + lowPriorityQueue.peek().getProcessID());
+        }
     }
 
     public void createQueue() {
         highPriorityQueue = new LinkedList<>();
         lowPriorityQueue = new LinkedList<>();
-        runningQueue = new LinkedList();
+        runningQueue = new LinkedList<>();
     }
 
     public PCB findMyPCB() {
-        while (highPriorityQueue.peek() != null && lowPriorityQueue.peek() != null) {
+        while (lowPriorityQueue.peek() != null || highPriorityQueue.peek() != null) {
+            System.out.println("peek");
             if (highPriorityQueue.peek() != null) {
                 return highPriorityQueue.remove();
-            }
-            else if (lowPriorityQueue.peek() != null) {
+            } else  {
                 return lowPriorityQueue.remove();
             }
         }
         return null;
     }
-}
-/*
 
-    private void rollTheDice(){
+    public PCB getRunningPCB(){
+        return runningQueue.remove();
+    }
+
+    private void rollTheDice(Queue runningQueue){
+        PCB currentpcb = null;
         do {
+            ArrayList datalist = new ArrayList();
+            ArrayList codelist = new ArrayList();
+
+            currentpcb = getRunningPCB();
+            ArrayList[] bothlist;
+            bothlist =  extractInfo(currentpcb);
+            datalist = bothlist[0];
+            codelist = bothlist[1];
+            System.out.println("Print Data And Code");
+            System.out.println(datalist);
+            System.out.println(codelist);
             String opCode = Integer.toHexString(checkMemoryValue(Memory[this.progamCounter]));
             // extract the opcode
             System.out.println(opCode);
@@ -608,4 +666,4 @@ public class MemoryDesign {
     }
 }
 
- */
+

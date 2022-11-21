@@ -111,7 +111,7 @@ public class PCB {
         }
 
         //default constructor
-        public PCB() {
+        public PCB(Object remove) {
             instructionsList = new LinkedList<Short>();
         }
         //initializing the variables with the variables
