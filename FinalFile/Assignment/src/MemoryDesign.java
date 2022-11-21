@@ -27,20 +27,13 @@ public class MemoryDesign {
             fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(),(int)allPCB[i].getProcessCodeSize(),i,allPCB[i].getProcessID());
             populateQueue(i,allPCB[i].processPriority);
         }
+        PCB currentPCB = null;
+        do {
+            currentPCB = findMyPCB();
+        }while (findMyPCB() != null);
         System.out.println(Arrays.deepToString(processPages));
-
-        //initialising spr labels
-        SPR.intializeSpecialPurposeRegister();
-        short InstructionRegister = 0;
-        SPR.newSPR[2].value= (short) (instructionSet.size()-1);
-        SPR.newSPR[9].value=  progamCounter;
-        SPR.newSPR[10].value=  InstructionRegister;
-        //rollTheDice();
-
-
-
-
     }
+
 
 
     public void generatePCB(ArrayList<String> instructionSet, int pcbNumber) throws FileNotFoundException {
@@ -52,11 +45,9 @@ public class MemoryDesign {
 
     public void fillpages (ArrayList instructionset,int datasize,int codesize,int processnum,int processid)
     {
-
         byte[] data = new byte[datasize];
         byte[] code = new byte[codesize];
         System.out.println();
-
 
         for (int i = 8; i < datasize + 8; i++) {
             data[i - 8] = (byte) Integer.parseInt(instructionset.get(i).toString(), 16);
@@ -148,15 +139,16 @@ public class MemoryDesign {
         runningQueue = new LinkedList();
     }
 
-    public void startTheProcesses() {
+    public PCB findMyPCB() {
         while (highPriorityQueue.peek() != null && lowPriorityQueue.peek() != null) {
             if (highPriorityQueue.peek() != null) {
-                highPriorityQueue.remove();
+                return highPriorityQueue.remove();
             }
             else if (lowPriorityQueue.peek() != null) {
-                lowPriorityQueue.remove();
+                return lowPriorityQueue.remove();
             }
         }
+        return null;
     }
 }
 /*
