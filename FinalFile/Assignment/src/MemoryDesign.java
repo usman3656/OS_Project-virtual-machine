@@ -30,11 +30,24 @@ public class MemoryDesign {
         PCB currentPCB = null;
         do {
             currentPCB = findMyPCB();
+            extractInfo(currentPCB);
+
         }while (findMyPCB() != null);
         System.out.println(Arrays.deepToString(processPages));
     }
 
+    public void extractInfo(PCB currentPCB) {
+        int priorityToMatch = currentPCB.getProcessID();
+        for (int i = 0; i < processPages.length; i++){
+            for (int j = 0; j < processPages[i].length; j++) {
+                if (processPages[i][j] == priorityToMatch) {
 
+                }
+                else
+                    break;
+            }
+        }
+    }
 
     public void generatePCB(ArrayList<String> instructionSet, int pcbNumber) throws FileNotFoundException {
         String[] pcbKit = new String[8];
