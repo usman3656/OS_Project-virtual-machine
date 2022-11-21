@@ -12,7 +12,7 @@ public class MemoryDesign {
     public final byte[] Memory = new byte[65536];
     public short progamCounter;
     boolean[] freeFrameList = new boolean[512];
-    int[][] processPages = new int[12][12];
+    int[][] processPages = new int[12][13];
     //-----------------------------------------
     Queue<PCB> highPriorityQueue;
     Queue<PCB> lowPriorityQueue;
@@ -27,6 +27,7 @@ public class MemoryDesign {
             fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(),(int)allPCB[i].getProcessCodeSize(),i,allPCB[i].getProcessID());
             populateQueue(i,allPCB[i].processPriority);
         }
+        System.out.println(Arrays.deepToString(processPages));
 
         //initialising spr labels
         SPR.intializeSpecialPurposeRegister();
@@ -75,10 +76,14 @@ public class MemoryDesign {
         int dx = Math.floorMod(data.length, 128);
         int cx = Math.floorMod(data.length, 128);
 
+        processPages[processnum*2][0]=processid;
+        processPages[processnum*2+1][0]=processid;
+
+
         for (int i = 0; i < d; i++) {
             int z = checknextfreepage();
             freeFrameList[z] = true;
-            processPages[processnum * 2][i] = z + 1;
+            processPages[processnum*2][i+1] = z+1;
 
 
             if (i < d - 1) {
@@ -89,7 +94,6 @@ public class MemoryDesign {
             else {
 
                 for (int x = 0; x < dx; x++) {
-
                     Memory[z * 128 + x] = data[i * 128 + x];
                 }
             }
@@ -97,10 +101,8 @@ public class MemoryDesign {
 
         for (int i=0;i<c;i++) {
             int z = checknextfreepage();
-
             freeFrameList[z] = true;
-            processPages[2 * processnum + 1][i] = z + 1;
-
+            processPages[2 * processnum + 1][i+1] = z + 1;
 
             checknextfreepage();
             if (i < c - 1) {
