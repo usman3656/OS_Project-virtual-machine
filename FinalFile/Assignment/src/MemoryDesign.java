@@ -1,4 +1,5 @@
 import java.io.FileNotFoundException;
+import java.sql.SQLOutput;
 import java.util.*;
 import java.lang.Math;
 
@@ -34,6 +35,7 @@ public class MemoryDesign {
         do {
             currentPCB = findMyPCB();
             if (currentPCB != null) {
+                System.out.println();
                 System.out.println(currentPCB.getProcessID());
                 runningQueue.add(currentPCB);
                 rollTheDice(runningQueue);
@@ -46,7 +48,7 @@ public class MemoryDesign {
     public ArrayList[] extractInfo(PCB currentPCB) {
         int idToMatch = currentPCB.getProcessID();
         int datasize = (int) currentPCB.getProcessDataSize();
-        System.out.println(datasize);
+
         int i;
         for (i = 0; i < processPages.length; i = i + 2) {
             if (idToMatch == processPages[i][0]) {
@@ -58,31 +60,30 @@ public class MemoryDesign {
         ArrayList datalist = new ArrayList();
         while (processPages[i][d] != 0) {
             pagenum = processPages[i][d];
-            System.out.println(pagenum);
+
             for (int j = 0; j < 128; j++) {
                 datalist.add(Memory[(pagenum - 1) * 128 + j]);
             }
             d++;
 
         }
-        System.out.println(datalist);
+
         int codesize = (int) currentPCB.getProcessDataSize();
-        System.out.println();
-        System.out.println(codesize);
+
+
 
         int c = 1;
         int pagenumcode;
         ArrayList codelist = new ArrayList();
         while (processPages[i + 1][c] != 0) {
             pagenumcode = processPages[i + 1][c];
-            System.out.println(pagenumcode);
             for (int j = 0; j < 128; j++) {
                 codelist.add(Memory[(pagenumcode - 1) * 128 + j]);
             }
             c++;
 
         }
-        System.out.println(codelist);
+
         infoAboutPCB[0] = datalist;
         infoAboutPCB[1] = codelist;
 
@@ -185,8 +186,6 @@ public class MemoryDesign {
             System.out.println("Invalid Priority");
 
         if (!highPriorityQueue.isEmpty()) {
-            System.out.println("high" + highPriorityQueue.peek().getProcessID());
-            System.out.println("low " + lowPriorityQueue.peek().getProcessID());
         }
     }
 
@@ -198,7 +197,6 @@ public class MemoryDesign {
 
     public PCB findMyPCB() {
         while (lowPriorityQueue.peek() != null || highPriorityQueue.peek() != null) {
-            System.out.println("peek");
             if (highPriorityQueue.peek() != null) {
                 return highPriorityQueue.remove();
             } else  {
@@ -214,9 +212,15 @@ public class MemoryDesign {
 
     private void rollTheDice(Queue runningQueue){
         PCB currentpcb = null;
-        do {
-            ArrayList datalist = new ArrayList();
-            ArrayList codelist = new ArrayList();
+
+
+        System.out.println("start execution of process");
+
+
+
+
+            ArrayList datalist ;
+            ArrayList codelist ;
 
             currentpcb = getRunningPCB();
             ArrayList[] bothlist;
@@ -226,304 +230,341 @@ public class MemoryDesign {
             System.out.println("Print Data And Code");
             System.out.println(datalist);
             System.out.println(codelist);
-            String opCode = Integer.toHexString(checkMemoryValue(Memory[this.progamCounter]));
+
+            int datapoint = 0;
+            int codepoint = 0;
+
+
+            do {
+            String opCode = Integer.toHexString(checkMemoryValue((Byte) codelist.get(codepoint)));
+
+
+            //System.out.print(opCode+"  "+checkMemoryValue((Byte) codelist.get(codepoint))+"  ");
             // extract the opcode
-            System.out.println(opCode);
-            char opCodeBreakdownOne = opCode.charAt(0);
-            char opCodeBreakdownTwo = opCode.charAt(1);
-            //break opcode in 2 characters
-            progamCounter++;
-            // now 2 switchcases will be used to get the instruction based on the value of the first and second characters of the opcode
-            switch (opCodeBreakdownOne) {
-                case '1' -> {
-                    short registerOne = (checkMemoryValue(Memory[this.progamCounter]));
-                    short newRegisterOne = generalPurposeRegister[registerOne];
-                    progamCounter++;
-                    short registerTwo = (checkMemoryValue(Memory[this.progamCounter]));
-                    short newRegisterTwo = generalPurposeRegister[registerTwo];
-                    // extracting the values of both registers to use further
-                    progamCounter++;
-                    if (newRegisterOne > 15 && newRegisterTwo > 15)
-                        System.out.println("Register Does Not Exist");
-                    //exception condition
-                    switch (opCodeBreakdownTwo) {
-                        case '6':
-                            generalPurposeRegister[registerOne] = newRegisterTwo;
-                            //move instruction
-                        case '7': {
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne + newRegisterTwo);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            OverFlowCheck(newRegisterOne,newRegisterTwo,"add");
-                            CarryFlagSett(newRegisterOne,newRegisterTwo,"add");
-                            break;
-                            // add instruction along with setting required flags
-                        }
-                        case '8': {
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne - newRegisterTwo);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            OverFlowCheck(newRegisterOne,newRegisterTwo,"sub");
-                            CarryFlagSett(newRegisterOne,newRegisterTwo,"sub");
-                            break;
-                            // subtract instruction along with setting required flags
 
-                        }
-                        case '9': {
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne * newRegisterTwo);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            OverFlowCheck(newRegisterOne,newRegisterTwo,"mul");
-                            CarryFlagSett(newRegisterOne,newRegisterTwo,"mul");
-                            break;
-                            // multiply instruction along with setting required flags
-
-                        }
-                        case 'A': {
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne / newRegisterTwo);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            OverFlowCheck(newRegisterOne,newRegisterTwo,"div");
-                            CarryFlagSett(newRegisterOne,newRegisterTwo,"div");
-                            break;
-                            // division instruction along with setting required flags
-
-                        }
-                        case 'B': {
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne & newRegisterTwo);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            break;
-                        }
-                        case 'C': {
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne | newRegisterTwo);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            break;
-                            // OR instruction along with setting required flags
-
-                        }
-                    }
-                    System.out.println("1 done");
-                }
-                case '3' -> {
-                    short registerOne = (checkMemoryValue(Memory[this.progamCounter]));
-                    short newRegisterOne = generalPurposeRegister[registerOne];
-                    progamCounter++;
-                    String immediatevalue = Integer.toHexString(checkMemoryValue(Memory[this.progamCounter])) + Integer.toHexString(checkMemoryValue(Memory[this.progamCounter + 1]));
-                    short immediate = (short) Integer.parseInt(immediatevalue,16);
-                    //extracting a registor value and an immediate value to be used further
-                    switch (opCodeBreakdownTwo) {
-                        case '0':
-                            generalPurposeRegister[registerOne] = immediate;
-                            break;
-                            // mov instruction along with setting required flags
-                        case '1': {
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne + immediate);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            OverFlowCheck(newRegisterOne,immediate,"add");
-                            CarryFlagSett(newRegisterOne,immediate,"add");
-                            break;
-                            // add instruction along with setting required flags
-
-                        }
-                        case '2':
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne - immediate);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            OverFlowCheck(newRegisterOne,immediate,"sub");
-                            CarryFlagSett(newRegisterOne,immediate,"sub");
-                            break;
-                        // subtract instruction along with setting required flags
-
-                        case '3':
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne * immediate);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            OverFlowCheck(newRegisterOne,immediate,"mul");
-                            CarryFlagSett(newRegisterOne,immediate,"mul");
-                            break;
-                        // multiply instruction along with setting required flags
-
-                        case '4':
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne / immediate);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            OverFlowCheck(newRegisterOne,immediate,"div");
-                            CarryFlagSett(newRegisterOne,immediate,"div");
-                            break;
-                        // divide instruction along with setting required flags
-
-                        case '5':
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne & immediate);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            break;
-                        // AND instruction along with setting required flags
-
-                        case '6':
-                            generalPurposeRegister[registerOne] = (short) (newRegisterOne | immediate);
-                            zeroSet(generalPurposeRegister[registerOne]);
-                            signSet(generalPurposeRegister[registerOne]);
-                            break;
-                        // OR instruction along with setting required flags
-
-                        case '7':
-                            if (SPR.newSPR[11].flag[1] == true) {
-                                if ((this.progamCounter+immediate ) < SPR.newSPR[2].value)
-                                    this.progamCounter = (short) (this.progamCounter + immediate);
-                                //checks zero flag then jumps to offset
+                if (checkopcodevalue(Integer.parseInt(opCode,16))){
+                    char opCodeBreakdownOne = opCode.charAt(0);
+                    char opCodeBreakdownTwo = opCode.charAt(1);
+                    //break opcode in 2 characters
+                    codepoint++;
+                    // now 2 switchcases will be used to get the instruction based on the value of the first and second characters of the opcode
+                    switch (opCodeBreakdownOne) {
+                        case '1' -> {
+                            short registerOne = (checkMemoryValue((Byte) codelist.get(codepoint)));
+                            short newRegisterOne;
+                            if(checkregistervalue(registerOne)) {
+                                newRegisterOne= generalPurposeRegister[registerOne];
                             }
-                            break;
-                        case '8':
-                            if (SPR.newSPR[11].flag[1] == false) {
-                                if ((this.progamCounter+immediate ) < SPR.newSPR[2].value)
-                                    this.progamCounter = (short) (this.progamCounter + immediate);
-                                //checks zero flag then jumps to offset
+                            else
+                                break;                            codepoint++;
+                            short registerTwo = (checkMemoryValue((Byte) codelist.get(codepoint)));
+                            short newRegisterTwo = generalPurposeRegister[registerTwo];
+                            // extracting the values of both registers to use further
+                            codepoint++;
+                            if (newRegisterOne > 15 && newRegisterTwo > 15)
+                                System.out.println("Register Does Not Exist");
+                            //exception condition
+                            switch (opCodeBreakdownTwo) {
+                                case '6':
+                                    generalPurposeRegister[registerOne] = newRegisterTwo;
+                                    //move instruction
+                                case '7': {
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne + newRegisterTwo);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    OverFlowCheck(newRegisterOne,newRegisterTwo,"add");
+                                    CarryFlagSett(newRegisterOne,newRegisterTwo,"add");
+                                    break;
+                                    // add instruction along with setting required flags
+                                }
+                                case '8': {
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne - newRegisterTwo);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    OverFlowCheck(newRegisterOne,newRegisterTwo,"sub");
+                                    CarryFlagSett(newRegisterOne,newRegisterTwo,"sub");
+                                    break;
+                                    // subtract instruction along with setting required flags
+
+                                }
+                                case '9': {
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne * newRegisterTwo);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    OverFlowCheck(newRegisterOne,newRegisterTwo,"mul");
+                                    CarryFlagSett(newRegisterOne,newRegisterTwo,"mul");
+                                    break;
+                                    // multiply instruction along with setting required flags
+
+                                }
+                                case 'A': {
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne / newRegisterTwo);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    OverFlowCheck(newRegisterOne,newRegisterTwo,"div");
+                                    CarryFlagSett(newRegisterOne,newRegisterTwo,"div");
+                                    break;
+                                    // division instruction along with setting required flags
+
+                                }
+                                case 'B': {
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne & newRegisterTwo);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    break;
+                                }
+                                case 'C': {
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne | newRegisterTwo);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    break;
+                                    // OR instruction along with setting required flags
+
+                                }
+                            }
+                            //System.out.println("1 done");
+                        }
+                        case '3' -> {
+                            short registerOne = (checkMemoryValue((Byte) codelist.get(codepoint)));
+                            short newRegisterOne;
+                            if(checkregistervalue(registerOne)) {
+                                newRegisterOne= generalPurposeRegister[registerOne];
+                            }
+                            else
+                                break;
+                            codepoint++;
+                            String immediatevalue = Integer.toHexString(checkMemoryValue((Byte) codelist.get(codepoint))) + Integer.toHexString(checkMemoryValue((Byte) codelist.get(codepoint+1)));;
+                            short immediate = (short) Integer.parseInt(immediatevalue,16);
+                            //extracting a registor value and an immediate value to be used further
+                            switch (opCodeBreakdownTwo) {
+                                case '0':
+                                    generalPurposeRegister[registerOne] = immediate;
+                                    break;
+                                // mov instruction along with setting required flags
+                                case '1': {
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne + immediate);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    OverFlowCheck(newRegisterOne,immediate,"add");
+                                    CarryFlagSett(newRegisterOne,immediate,"add");
+                                    break;
+                                    // add instruction along with setting required flags
+
+                                }
+                                case '2':
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne - immediate);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    OverFlowCheck(newRegisterOne,immediate,"sub");
+                                    CarryFlagSett(newRegisterOne,immediate,"sub");
+                                    break;
+                                // subtract instruction along with setting required flags
+
+                                case '3':
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne * immediate);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    OverFlowCheck(newRegisterOne,immediate,"mul");
+                                    CarryFlagSett(newRegisterOne,immediate,"mul");
+                                    break;
+                                // multiply instruction along with setting required flags
+
+                                case '4':
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne / immediate);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    OverFlowCheck(newRegisterOne,immediate,"div");
+                                    CarryFlagSett(newRegisterOne,immediate,"div");
+                                    break;
+                                // divide instruction along with setting required flags
+
+                                case '5':
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne & immediate);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    break;
+                                // AND instruction along with setting required flags
+
+                                case '6':
+                                    generalPurposeRegister[registerOne] = (short) (newRegisterOne | immediate);
+                                    zeroSet(generalPurposeRegister[registerOne]);
+                                    signSet(generalPurposeRegister[registerOne]);
+                                    break;
+                                // OR instruction along with setting required flags
+
+                                case '7':
+                                    if (SPR.newSPR[11].flag[1] == true) {
+                                        if ((codepoint+immediate ) < SPR.newSPR[2].value)
+                                            codepoint = (short) (codepoint + immediate);
+                                        //checks zero flag then jumps to offset
+                                    }
+                                    break;
+                                case '8':
+                                    if (SPR.newSPR[11].flag[1] == false) {
+                                        if ((codepoint+immediate ) < SPR.newSPR[2].value)
+                                            codepoint = (short) (codepoint + immediate);
+                                        //checks zero flag then jumps to offset
+
+                                    }
+                                    break;
+                                case '9':
+                                    if (SPR.newSPR[11].flag[0] == true) {
+                                        if ((codepoint+immediate ) < SPR.newSPR[2].value)
+                                            codepoint = (short) (codepoint + immediate);
+                                        //checks carry flag then jumps to offset
+
+                                    }
+                                    break;
+                                case 'A':
+                                    if (SPR.newSPR[11].flag[2] == true) {
+                                        if ((codepoint+ immediate ) < SPR.newSPR[2].value)
+                                            codepoint = (short) (codepoint + immediate);
+                                        //checks sign flag then jumps to offset
+
+                                    }
+                                    break;
+                                case 'B':
+                                    if ((codepoint+immediate ) < SPR.newSPR[2].value)
+                                        codepoint = (short) (codepoint + immediate);
+                                    break;
+                                // jump instruction
+
+                                case 'C':
+                                    newStack.push((byte) codepoint);
+                                    codepoint = (short) (codepoint + immediate);
+                                    break;
+                                // prodecure call instruction along with adding value to stack
+                                case 'D':
+                                    break;
+                                // ACT insttruction
 
                             }
-                            break;
-                        case '9':
-                            if (SPR.newSPR[11].flag[0] == true) {
-                                if ((this.progamCounter+immediate ) < SPR.newSPR[2].value)
-                                    this.progamCounter = (short) (this.progamCounter + immediate);
-                                //checks carry flag then jumps to offset
-
+                            codepoint += 2;
+                        }
+                        case '5' -> {
+                            short registerOne = (checkMemoryValue((Byte) codelist.get(codepoint)));
+                            short newRegisterOne;
+                            if(checkregistervalue(registerOne)) {
+                                newRegisterOne= generalPurposeRegister[registerOne];
                             }
-                            break;
-                        case 'A':
-                            if (SPR.newSPR[11].flag[2] == true) {
-                                if ((this.progamCounter+immediate ) < SPR.newSPR[2].value)
-                                    this.progamCounter = (short) (this.progamCounter + immediate);
-                                //checks sign flag then jumps to offset
+                            else
+                                break;
+                            codepoint++;
+                            String immediatevalue = Integer.toHexString(checkMemoryValue((Byte) codelist.get(codepoint))) + Integer.toHexString(checkMemoryValue((Byte) codelist.get(codepoint+1)));
+                            short immediate = (short) Integer.parseInt(immediatevalue,16);
+                            //extracting a registor value and an immediate value to be used further
 
+
+                            switch (opCodeBreakdownTwo) {
+                                case '1' -> generalPurposeRegister[registerOne] = checkMemoryValue((Byte) datalist.get(datapoint + immediate));
+                                case '2' ->  datalist.set(datapoint + immediate,generalPurposeRegister[(registerOne)]) ;
+                                //load and store instructions
                             }
-                            break;
-                        case 'B':
-                            if ((this.progamCounter+immediate ) < SPR.newSPR[2].value)
-                                this.progamCounter = (short) (this.progamCounter + immediate);
-                            break;
-                        // jump instruction
+                            codepoint += 2;
+                        }
 
-                        case 'C':
-                            newStack.push((byte) progamCounter);
-                            this.progamCounter = (short) (this.progamCounter + immediate);
-                            break;
-                            // prodecure call instruction along with adding value to stack
-                        case 'D':
-                            break;
-                        // ACT insttruction
+                        case '7' -> {
+                            short registerOne = (checkMemoryValue((Byte) codelist.get(codepoint)));
+                            short newRegisterOne;
+                            if(checkregistervalue(registerOne)) {
+                                newRegisterOne= generalPurposeRegister[registerOne];
+                            }
+                            else
+                                break;
+                            codepoint++;
+                            //extracting a registor value to be used further
 
-                    }
-                    progamCounter += 2;
-                }
-                case '5' -> {
-                    short registerOne = (checkMemoryValue(Memory[this.progamCounter]));
-                    short newRegisterOne = generalPurposeRegister[registerOne];
-                    progamCounter++;
-                    String immediatevalue = Integer.toHexString(checkMemoryValue(Memory[this.progamCounter])) + Integer.toHexString(checkMemoryValue(Memory[this.progamCounter + 1]));
-                    short immediate = (short) Integer.parseInt(immediatevalue,16);
-                    //extracting a registor value and an immediate value to be used further
+                            switch (opCodeBreakdownTwo) {
+                                case '1':
+                                    newRegisterOne = (short) (newRegisterOne << 1);  //left shift
+                                    generalPurposeRegister[(registerOne)] = newRegisterOne;
+                                    break;
+                                case '2':
+                                    newRegisterOne = (short) (newRegisterOne >> 1);  //right shift
+                                    generalPurposeRegister[(registerOne)] = newRegisterOne;
+                                    break;
+                                case '3':
+                                    StringBuilder binStr = new StringBuilder(Integer.toBinaryString(newRegisterOne));
+                                    //converts binary string into a 16 bit binary string
 
+                                    for (int i = 16 - binStr.length() - 1; i >= 0; i--) {
 
-                    switch (opCodeBreakdownTwo) {
-                        case '1' -> generalPurposeRegister[registerOne] = (short) Memory[newRegisterOne + immediate];
-                        case '2' -> Memory[newRegisterOne + immediate] = (byte) generalPurposeRegister[(registerOne)];
-                        //load and store instructions
-                    }
-                    progamCounter += 2;
-                }
-                case '7' -> {
-                    short registerOne =checkMemoryValue (Memory[this.progamCounter]);
-                    short newRegisterOne = generalPurposeRegister[registerOne];
-                    progamCounter++;
-                    //extracting a registor value to be used further
-
-                    switch (opCodeBreakdownTwo) {
-                        case '1':
-                            newRegisterOne = (short) (newRegisterOne << 1);  //left shift
-                            generalPurposeRegister[(registerOne)] = newRegisterOne;
-                            break;
-                        case '2':
-                            newRegisterOne = (short) (newRegisterOne >> 1);  //right shift
-                            generalPurposeRegister[(registerOne)] = newRegisterOne;
-                            break;
-                        case '3':
-                            StringBuilder binStr = new StringBuilder(Integer.toBinaryString(newRegisterOne));
-                            //converts binary string into a 16 bit binary string
-
-                            for (int i = 16 - binStr.length() - 1; i >= 0; i--) {
-
-                                binStr.insert(0, 0);
+                                        binStr.insert(0, 0);
 //
-                            }
-                            //checks carry flag and append the value of carry bit to the right of the binary string
-                            if (SPR.newSPR[11].flag[0]) {
-                                binStr.append(1);
-                            } else {
-                                binStr.append(0);
-                            }
-                            // moves the msb to carry flag
-                            if (binStr.charAt(0) == '1') {
-                                SPR.newSPR[11].flag[0] = true;
-                            }
-                            else {
-                                SPR.newSPR[11].flag[0] = false;
-                            }
+                                    }
+                                    //checks carry flag and append the value of carry bit to the right of the binary string
+                                    if (SPR.newSPR[11].flag[0]) {
+                                        binStr.append(1);
+                                    } else {
+                                        binStr.append(0);
+                                    }
+                                    // moves the msb to carry flag
+                                    if (binStr.charAt(0) == '1') {
+                                        SPR.newSPR[11].flag[0] = true;
+                                    }
+                                    else {
+                                        SPR.newSPR[11].flag[0] = false;
+                                    }
 
-                            String finalStr = binStr.substring(1, binStr.length()); //removes left most bit from the binary string
-                            generalPurposeRegister[(registerOne)] = (short) (Integer.parseInt(finalStr, 2)); //converts binary to decimal and saves in the register
-                            break;
-                        case '4':
-                            StringBuilder binStr2 = new StringBuilder(Integer.toBinaryString(newRegisterOne));// converts decimal to binary
-                            //converts binary string into a 16 bit binary string
-                            for (int i = 16 - binStr2.length() - 1; i >= 0; i--) {
+                                    String finalStr = binStr.substring(1, binStr.length()); //removes left most bit from the binary string
+                                   // generalPurposeRegister[(registerOne)] = (short) (Integer.parseInt(finalStr, 2)); //converts binary to decimal and saves in the register
+                                    break;
+                                case '4':
+                                    StringBuilder binStr2 = new StringBuilder(Integer.toBinaryString(newRegisterOne));// converts decimal to binary
+                                    //converts binary string into a 16 bit binary string
+                                    for (int i = 16 - binStr2.length() - 1; i >= 0; i--) {
 
-                                binStr2.insert(0, 0);
+                                        binStr2.insert(0, 0);
 //
+                                    }
+                                    //checks carry flag and append the value of carry bit to the left of the binary string
+                                    if (SPR.newSPR[11].flag[0]) {
+                                        binStr2.insert(0, 1);
+                                    } else {
+                                        binStr2.insert(0, 0);
+                                    }
+                                    // moves the lsb to carry flag
+                                    if (binStr2.charAt(binStr2.length() - 1) == '1') {
+                                        SPR.newSPR[11].flag[0] = true;
+                                    } else {
+                                        SPR.newSPR[11].flag[0] = false;
+                                    }
+                                    String finalStr2 = binStr2.substring(0, binStr2.length() - 1); //removes right most bit from the binary string
+                                    //generalPurposeRegister[(registerOne)] = (short) (Integer.parseInt(finalStr2, 2)); //converts binary to decimal and saves in the register
+                                    break;
+                                case '5':
+                                    newRegisterOne++; //increment value in register by 1
+                                    generalPurposeRegister[(registerOne)] = newRegisterOne;
+                                    break;
+                                case '6':
+                                    newRegisterOne--; //decrement value in register by 1
+                                    generalPurposeRegister[(registerOne)] = newRegisterOne;
+                                    break;
+                                case '7':
+                                    break;
+                                case '8':
+                                    break;
                             }
-                            //checks carry flag and append the value of carry bit to the left of the binary string
-                            if (SPR.newSPR[11].flag[0]) {
-                                binStr2.insert(0, 1);
-                            } else {
-                                binStr2.insert(0, 0);
-                            }
-                            // moves the lsb to carry flag
-                            if (binStr2.charAt(binStr2.length() - 1) == '1') {
-                                SPR.newSPR[11].flag[0] = true;
-                            } else {
-                                SPR.newSPR[11].flag[0] = false;
-                            }
-                            String finalStr2 = binStr2.substring(0, binStr2.length() - 1); //removes right most bit from the binary string
-                            generalPurposeRegister[(registerOne)] = (short) (Integer.parseInt(finalStr2, 2)); //converts binary to decimal and saves in the register
-                            break;
-                        case '5':
-                            newRegisterOne++; //increment value in register by 1
-                            generalPurposeRegister[(registerOne)] = newRegisterOne;
-                            break;
-                        case '6':
-                            newRegisterOne--; //decrement value in register by 1
-                            generalPurposeRegister[(registerOne)] = newRegisterOne;
-                            break;
-                        case '7':
-                            break;
-                        case '8':
-                            break;
-                    }
 
-                }
-                case 'f' -> {
-                    switch (opCodeBreakdownTwo) {
-                        case '1' -> progamCounter = newStack.pop();//pop pc from stack
-                        case '2' -> progamCounter++;//increment pc
-                        case '3' -> System.exit(2);//exit program
+                        }
+                        case 'f' -> {
+                            switch (opCodeBreakdownTwo) {
+                                case '1' -> codepoint = codepoint;//pop pc from stack
+                                case '2' -> codepoint++;//increment pc
+                                case '3' -> System.exit(2);//exit program
+                            }
+
+                        }
+                        //default -> System.out.println("Invalid Op-Code");//invalid opcode
                     }
-                    progamCounter++;
                 }
-                default -> System.out.println("Invalid Op-Code");//invalid opcode
-            }
-        } while (progamCounter < SPR.newSPR[2].value );
+                else{
+                    //System.out.println("invalid opcode");
+                    codepoint++;
+                }
+
+
+        } while (codepoint < codelist.size() );
     }
 
     private void zeroSet(short value) {//zeroset function
@@ -630,15 +671,16 @@ public class MemoryDesign {
                     SPR.newSPR[11].flag[0] = false;
                 }
             case "div":
-                int DivResult =value1 / value2 ;
+                if (value2 !=0){
+                int DivResult = value1 / value2;
                 String DivBinStr = Integer.toBinaryString(DivResult); //convert decimal to binary
                 //when there is no overflow and result is greater than 16 bits, carry is set
-                if(DivBinStr.length()>16 && (SPR.newSPR[11].flag[3] = false)){
+                if (DivBinStr.length() > 16 && (SPR.newSPR[11].flag[3] = false)) {
                     SPR.newSPR[11].flag[0] = true;
-                }
-                else{
+                } else {
                     SPR.newSPR[11].flag[0] = false;
                 }
+            }
         }
     }
 
@@ -664,6 +706,26 @@ public class MemoryDesign {
         else
             return Integer.parseInt(letter);
     }
+
+    public boolean checkregistervalue(int value)
+    {
+        if(value >16 || value <0)
+            return false;
+        else
+            return true;
+    }
+
+    public boolean checkopcodevalue(int value)
+    {
+        if(value <16 )
+            return false;
+        else
+            return true;
+    }
+
+
+
+
 }
 
 

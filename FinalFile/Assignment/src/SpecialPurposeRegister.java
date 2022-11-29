@@ -5,6 +5,7 @@ public class SpecialPurposeRegister {
     public boolean[] flag;
 
     public SpecialPurposeRegister(){
+        intializeSpecialPurposeRegister();
     }
 
     public SpecialPurposeRegister(String name,int valuePassed){
@@ -29,7 +30,7 @@ public class SpecialPurposeRegister {
         newSPR[8] = new SpecialPurposeRegister("Stack Limit",0);
         newSPR[9] = new SpecialPurposeRegister("Program Counter",0);
         newSPR[10] = new SpecialPurposeRegister("Instruction Register",0);
-        boolean[] flagRegister = new boolean[16];
-        newSPR[11] = new SpecialPurposeRegister(flagRegister) ;
+        boolean[] flag = new boolean[16];
+        newSPR[11] = new SpecialPurposeRegister(flag) ;
     }
 }
