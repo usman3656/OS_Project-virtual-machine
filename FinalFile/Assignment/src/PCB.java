@@ -29,6 +29,7 @@ public class PCB {
         //declaring process file
         String processFile;
         int[] pagetable = new int[2];
+        int queuenumber;
 
         //default setters and getters
         public short[] getGPR() {
