@@ -568,22 +568,33 @@ public class MemoryDesign {
         } while (codepoint < codelist.size());
 
         finishExecution(datalist, codelist, currentpcb);
-        printFile(datalist,codelist);
+        printFile(datalist,codelist,currentpcb);
     }
 
-    public void printFile(ArrayList datalist, ArrayList codelist){
+    public void printFile(ArrayList datalist, ArrayList codelist,PCB currentpcb){
 
         try {
             File myObj = new File("D:\\IBA\\Semester 5\\OS_Project1\\file2.txt");
             FileWriter myWriter = new FileWriter("D:\\IBA\\Semester 5\\OS_Project1\\file2.txt");
+            myWriter.write("Data Segment:");
             for(int i=0;i<datalist.size();i++){
                 myWriter.write(datalist.get(i)+" ");
             }
             myWriter.write("\n");
             myWriter.write("\n");
+            myWriter.write("Code Segment:");
             for(int j=0;j<codelist.size();j++){
                 myWriter.write(""+codelist.get(j)+" ");
             }
+            myWriter.write("\n");
+            myWriter.write("Process ID:");
+            myWriter.write(currentpcb.getProcessID());
+            myWriter.write("Process Priority:");
+            myWriter.write(currentpcb.getProcessPriority());
+            myWriter.write("Code Size:");
+            myWriter.write((int) currentpcb.getProcessCodeSize());
+            myWriter.write("Data Size:");
+            myWriter.write((int) currentpcb.getProcessDataSize());
             myWriter.close();
             System.out.println("Successfully wrote to the file.");
         } catch (IOException e) {
