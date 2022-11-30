@@ -30,6 +30,8 @@ public class PCB {
         String processFile;
         int[] pagetable = new int[2];
         int queuenumber;
+        int codepin;
+        int datapin;
 
         //default setters and getters
         public short[] getGPR() {
