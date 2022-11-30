@@ -5,6 +5,7 @@ import java.lang.Math;
 import java.io.FileWriter;   // Import the FileWriter class
 import java.io.IOException;
 import java.io.File;
+
 //all initialization/
 public class MemoryDesign {
     private final byte toBeInserted = 50;
@@ -15,6 +16,7 @@ public class MemoryDesign {
     boolean[] freeFrameList = new boolean[512];
     int[][] processPages = new int[12][13];
     ArrayList[] infoAboutPCB = new ArrayList[2];
+    int[] queue;
     int quantum = 4;
     //-----------------------------------------
     Queue<PCB> highPriorityQueue;
@@ -31,6 +33,7 @@ public class MemoryDesign {
             fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(), (int) allPCB[i].getProcessCodeSize(), i, allPCB[i].getProcessID());
             populateQueue(i, allPCB[i].processPriority);
         }
+        sortqueue();
 
 
         PCB currentPCB;
@@ -41,12 +44,47 @@ public class MemoryDesign {
                 System.out.println();
                 System.out.println(currentPCB.getProcessID());
                 runningQueue.add(currentPCB);
-                rollTheDice( currentPCB.GPR, currentPCB.SPRforPCB);
+                rollTheDice(currentPCB.GPR, currentPCB.SPRforPCB);
             }
 
         } while (currentPCB != null);
 
     }
+
+    public void sortqueue() {
+
+        queue = new int[highPriorityQueue.size()];
+        System.out.println(queue.length);
+
+
+        for (int x = 0; x < queue.length; x++) {
+            queue[x] = highPriorityQueue.remove().processPriority;
+        }
+
+        Arrays.sort(queue);
+        Collections.reverse(Arrays.asList(queue));
+        System.out.println(Arrays.toString(queue));
+
+        boolean[] p = new boolean[6];
+        System.out.println("khdfuhsdb");
+        int x = 0;
+        while (x < queue.length) {
+            for (int i = 0; i < 6; i++) {
+                if (allPCB[i].getProcessPriority() == queue[x]) {
+                    if (!p[i]) {
+                        highPriorityQueue.add(allPCB[i]);
+                        System.out.println("added");
+                        p[i]=true;
+                    }
+
+
+
+                }
+            }
+            x++;
+        }
+    }
+
 
     public ArrayList[] extractInfo(PCB currentPCB) {
         int idToMatch = currentPCB.getProcessID();
@@ -187,12 +225,10 @@ public class MemoryDesign {
             highPriorityQueue.add(allPCB[(processNumber)]);
             allPCB[processNumber].queuenumber = 1;
 
-        }
-        else if (processPriority >= 16 && processPriority <= 31) {
+        } else if (processPriority >= 16 && processPriority <= 31) {
             lowPriorityQueue.add(allPCB[processNumber]);
             allPCB[processNumber].queuenumber = 0;
-        }
-        else
+        } else
             System.out.println("Invalid Priority");
 
         if (!highPriorityQueue.isEmpty()) {
@@ -225,7 +261,7 @@ public class MemoryDesign {
     private void rollTheDice(short[] generalPurposeRegister, SpecialPurposeRegister SPR) {
 
 
-        PCB currentpcb ;
+        PCB currentpcb;
 
 
         System.out.println("start execution of process");
@@ -240,11 +276,10 @@ public class MemoryDesign {
         datalist = bothlist[0];
         codelist = bothlist[1];
         System.out.println("Print Data And Code");
-       // System.out.println(datalist);
+        // System.out.println(datalist);
         //System.out.println(codelist);
 
-        if (currentpcb.queuenumber == 0)
-        {
+        if (currentpcb.queuenumber == 0) {
             int datapoint = currentpcb.datapin;
             int codepoint = currentpcb.codepin;
 
@@ -574,12 +609,11 @@ public class MemoryDesign {
                     codepoint++;
                 }
 
-                index ++;
+                index++;
 
             } while (codepoint < codelist.size() && index < quantum);
 
-            if(codepoint == codelist.size())
-            {
+            if (codepoint == codelist.size()) {
                 lowPriorityQueue.remove(currentpcb);
             }
 
@@ -588,13 +622,10 @@ public class MemoryDesign {
 
 
             finishExecution(datalist, codelist, currentpcb);
-            printFile(datalist,codelist,currentpcb);
+            printFile(datalist, codelist, currentpcb);
 
 
-
-
-        }
-        else {
+        } else {
 
             int datapoint = currentpcb.datapin;
             int codepoint = currentpcb.codepin;
@@ -928,25 +959,25 @@ public class MemoryDesign {
             } while (codepoint < codelist.size());
 
 
-        finishExecution(datalist, codelist, currentpcb);
-        printFile(datalist,codelist,currentpcb);
+            finishExecution(datalist, codelist, currentpcb);
+            printFile(datalist, codelist, currentpcb);
         }
     }
 
-    public void printFile(ArrayList datalist, ArrayList codelist,PCB currentpcb){
+    public void printFile(ArrayList datalist, ArrayList codelist, PCB currentpcb) {
 
         try {
             File myObj = new File("D:\\IBA\\Semester 5\\OS_Project1\\file2.txt");
             FileWriter myWriter = new FileWriter("D:\\IBA\\Semester 5\\OS_Project1\\file2.txt");
             myWriter.write("Data Segment:");
-            for(int i=0;i<datalist.size();i++){
-                myWriter.write(datalist.get(i)+" ");
+            for (int i = 0; i < datalist.size(); i++) {
+                myWriter.write(datalist.get(i) + " ");
             }
             myWriter.write("\n");
             myWriter.write("\n");
             myWriter.write("Code Segment:");
-            for(int j=0;j<codelist.size();j++){
-                myWriter.write(""+codelist.get(j)+" ");
+            for (int j = 0; j < codelist.size(); j++) {
+                myWriter.write("" + codelist.get(j) + " ");
             }
             myWriter.write("\n");
             myWriter.write("Process ID:");
@@ -966,11 +997,12 @@ public class MemoryDesign {
 
     }
 
-    public void finishExecution(ArrayList datalist, ArrayList codelist, PCB currentpcb) {;
+    public void finishExecution(ArrayList datalist, ArrayList codelist, PCB currentpcb) {
+        ;
         int dataCount = 1;
         while (processPages[currentpcb.pagetable[0]][dataCount] != 0) {
             for (int x = 0; x < 128; x++) {
-                Memory[processPages[currentpcb.pagetable[0]][dataCount-1] * 128 + x] = (byte) datalist.get((dataCount - 1) * 128 + x);
+                Memory[processPages[currentpcb.pagetable[0]][dataCount - 1] * 128 + x] = (byte) datalist.get((dataCount - 1) * 128 + x);
             }
             dataCount++;
         }
@@ -978,9 +1010,9 @@ public class MemoryDesign {
         int codeCount = 1;
         while (processPages[currentpcb.pagetable[1]][codeCount] != 0) {
             for (int x = 0; x < 128; x++) {
-                Memory[processPages[currentpcb.pagetable[1]][codeCount-1] * 128 + x] = (byte) codelist.get((codeCount - 1) * 128 + x);
+                Memory[processPages[currentpcb.pagetable[1]][codeCount - 1] * 128 + x] = (byte) codelist.get((codeCount - 1) * 128 + x);
             }
-           // System.out.println(codeCount);
+            // System.out.println(codeCount);
             codeCount++;
 
         }
