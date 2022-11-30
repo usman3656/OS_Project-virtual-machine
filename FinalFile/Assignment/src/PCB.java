@@ -28,6 +28,7 @@ public class PCB {
         int processPriority;
         //declaring process file
         String processFile;
+        int[] pagetable = new int[2];
 
         //default setters and getters
         public short[] getGPR() {
