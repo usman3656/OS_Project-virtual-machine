@@ -28,10 +28,13 @@ public class PCB {
         int processPriority;
         //declaring process file
         String processFile;
+        //declaring process file
         int[] pagetable = new int[2];
-        int queuenumber;
-        int codepin;
-        int datapin;
+        //declaring page table
+
+        int queuenumber;//declaring queue number 1 or 2
+        int codepin;//the point of program counter on code
+        int datapin;//the point of program counter on data
 
         //default setters and getters
         public short[] getGPR() {
@@ -103,7 +106,7 @@ public class PCB {
 
         public void setProcessPriority(int processPriority) {
             this.processPriority = processPriority;
-        }
+        }//setting priority
 
 
         public String getProcessFile() {
@@ -119,7 +122,7 @@ public class PCB {
             instructionsList = new LinkedList<Short>();
         }
         //initializing the variables with the variables
-        public PCB(String[] pcbKit, int instructionSize) throws FileNotFoundException {
+        public PCB(String[] pcbKit, int instructionSize) throws FileNotFoundException {//pcb class
             SPRforPCB.intializeSpecialPurposeRegister();
             setProcessPriority(Integer.parseInt(pcbKit[0],16));
             setProcessID(Integer.parseInt(pcbKit[1]+pcbKit[2],16));

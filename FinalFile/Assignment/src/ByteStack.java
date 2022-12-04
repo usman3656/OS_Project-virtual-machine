@@ -33,9 +33,9 @@ public class ByteStack {
 
     public boolean isEmpty() {
         return (top == -1);
-    }
+    }//is empty check
 
     public boolean isFull() {
         return (top == stackList.length - 1);
-    }
+    }// is full check
 }

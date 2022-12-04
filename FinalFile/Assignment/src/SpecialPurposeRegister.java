@@ -1,10 +1,10 @@
-public class SpecialPurposeRegister {
+public class SpecialPurposeRegister {//special purpose register for processing
     public String name;
     public int value;
     public SpecialPurposeRegister[] newSPR;
     public boolean[] flag;
 
-    public SpecialPurposeRegister(){
+    public SpecialPurposeRegister(){//initialising spr
         intializeSpecialPurposeRegister();
     }
 
@@ -17,7 +17,7 @@ public class SpecialPurposeRegister {
         this.flag = flagRegister;
     }
 
-    public void intializeSpecialPurposeRegister(){
+    public void intializeSpecialPurposeRegister(){//main function
         newSPR = new SpecialPurposeRegister[16];
         newSPR[0] = new SpecialPurposeRegister("Code Base",0);
         newSPR[1] = new SpecialPurposeRegister("Code Counter",0);

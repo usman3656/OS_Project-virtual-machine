@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.File;
 
 //all initialization/
-public class MemoryDesign {
+public class MemoryDesign {// this is where all manipulation and execution happens
     private final byte toBeInserted = 50;
     private ByteStack newStack = new ByteStack(toBeInserted);
     private PCB[] allPCB = new PCB[6];
@@ -19,38 +19,41 @@ public class MemoryDesign {
     int[] queue;
     int quantum = 4;
     //-----------------------------------------
+    // declaring queues
     Queue<PCB> highPriorityQueue;
     Queue<PCB> lowPriorityQueue;
     Queue<PCB> runningQueue;
 
-    public MemoryDesign(ArrayList<ArrayList> instructionSet) throws FileNotFoundException {
+    public MemoryDesign(ArrayList<ArrayList> instructionSet) throws FileNotFoundException { // the main function
         // Generating PCB For All Processes
         //------------------------------------------------
         System.out.println();
-        createQueue();
-        for (int i = 0; i < instructionSet.size(); i++) {
-            generatePCB(instructionSet.get(i), i);
+        createQueue();// creating queues
+        for (int i = 0; i < instructionSet.size(); i++) {// runs for each process
+            generatePCB(instructionSet.get(i), i);//generating pcb for each process
             fillpages(instructionSet.get(i), (int) allPCB[i].getProcessDataSize(), (int) allPCB[i].getProcessCodeSize(), i, allPCB[i].getProcessID());
-            populateQueue(i, allPCB[i].processPriority);
+            //filling pages in memory for each process, doing paging both data and code
+            populateQueue(i, allPCB[i].processPriority);// putting data in queue for each process
         }
-        sortqueue();
+        sortqueue(); // sorts queue according to priority
 
 
         PCB currentPCB;
-        do {
+        do {// runs for executing each process
 
-            currentPCB = findMyPCB();
-            if (currentPCB != null) {
+            currentPCB = findMyPCB();// finds the next instruction to be executed
+            if (currentPCB != null) {// runs until there are processes left to be executed
                 System.out.println();
                 System.out.println(currentPCB.getProcessID());
-                runningQueue.add(currentPCB);
-                rollTheDice(currentPCB.GPR, currentPCB.SPRforPCB);
+                runningQueue.add(currentPCB);//adds process to runnning queue
+                rollTheDice(currentPCB.GPR, currentPCB.SPRforPCB);// starts execution
             }
 
         } while (currentPCB != null);
 
-    }
+    }// end of the main funtion and execution is complete
 
+    // sorts queue according to priority
     public void sortqueue() {
 
         queue = new int[highPriorityQueue.size()];
@@ -85,7 +88,7 @@ public class MemoryDesign {
         }
     }
 
-
+    // extracts all the necessary info from the pcb
     public ArrayList[] extractInfo(PCB currentPCB) {
         int idToMatch = currentPCB.getProcessID();
         int datasize = (int) currentPCB.getProcessDataSize();
@@ -131,7 +134,7 @@ public class MemoryDesign {
 
     }
 
-
+    //generates pcb for each instruction
     public void generatePCB(ArrayList<String> instructionSet, int pcbNumber) throws FileNotFoundException {
         String[] pcbKit = new String[8];
         for (int processByte = 0; processByte < 8; processByte++)
@@ -139,6 +142,7 @@ public class MemoryDesign {
         allPCB[pcbNumber] = new PCB(pcbKit, instructionSet.size());
     }
 
+    //fill pages in memory for each instruction
     public void fillpages(ArrayList instructionset, int datasize, int codesize, int processnum, int processid) {
         byte[] data = new byte[datasize];
         byte[] code = new byte[codesize];
@@ -208,6 +212,7 @@ public class MemoryDesign {
         }
     }
 
+    // checks next free page in memory
     public int checknextfreepage() {
         int i = 0;
         do {
@@ -219,6 +224,7 @@ public class MemoryDesign {
         return -1;
     }
 
+    // fills queue with data
     public void populateQueue(int processNumber, double processPriority) {
 
         if (processPriority >= 0 && processPriority <= 15) {
@@ -235,12 +241,14 @@ public class MemoryDesign {
         }
     }
 
+    // creates queue
     public void createQueue() {
         highPriorityQueue = new LinkedList<>();
         lowPriorityQueue = new LinkedList<>();
         runningQueue = new LinkedList<>();
     }
 
+    // finds the next instruction to be executed
     public PCB findMyPCB() {
         while (lowPriorityQueue.peek() != null || highPriorityQueue.peek() != null) {
             if (highPriorityQueue.peek() != null) {
@@ -254,10 +262,12 @@ public class MemoryDesign {
         return null;
     }
 
+    // removes the current process from the queue
     public PCB getRunningPCB() {
         return runningQueue.remove();
     }
 
+    //each instruction is fetched and decoded and executed, the mastermind of the code and phase 1
     private void rollTheDice(short[] generalPurposeRegister, SpecialPurposeRegister SPR) {
 
 
@@ -964,6 +974,7 @@ public class MemoryDesign {
         }
     }
 
+   // prints each file
     public void printFile(ArrayList datalist, ArrayList codelist, PCB currentpcb) {
 
         try {
@@ -997,6 +1008,7 @@ public class MemoryDesign {
 
     }
 
+    //finishes execution
     public void finishExecution(ArrayList datalist, ArrayList codelist, PCB currentpcb) {
         ;
         int dataCount = 1;
@@ -1019,6 +1031,7 @@ public class MemoryDesign {
 
     }
 
+    //sets zero in spr
     private void zeroSet(short value, SpecialPurposeRegister SPR) {//zeroset function
         if (value == 0) {
             SPR.newSPR[11].flag[1] = true;
@@ -1026,6 +1039,7 @@ public class MemoryDesign {
             SPR.newSPR[11].flag[1] = false;
     }
 
+    //sets sign bit in spr
     private void signSet(short value, SpecialPurposeRegister SPR) {//signset function
         if (value < 0) {
             SPR.newSPR[11].flag[2] = true;
@@ -1033,6 +1047,7 @@ public class MemoryDesign {
             SPR.newSPR[11].flag[2] = false;
     }
 
+    //checks overflow bit
     private void OverFlowCheck(Short value1, Short value2, String operation, SpecialPurposeRegister SPR) { //sets overflow flag
         switch (operation) {  // checks the operation that was performed, and then moves to the right code to check overflow
             case "add":  // compares the result of short and integer addition
@@ -1087,6 +1102,7 @@ public class MemoryDesign {
 
     }
 
+    //sets carry flag
     private void CarryFlagSett(Short value1, Short value2, String operation, SpecialPurposeRegister SPR) { //sets carry flag
         switch (operation) { // checks the operation that was performed, and then moves to the right code to check carry flag
             case "add":
@@ -1131,12 +1147,14 @@ public class MemoryDesign {
         }
     }
 
+    //checks value of memory byte
     private short checkMemoryValue(byte value) {//converts byte to short value
         int valueNumber = Byte.toUnsignedInt(value);
         short newValueNumber = (short) valueNumber;
         return newValueNumber;
     }
 
+    // converts string to int
     private int stringToInteger(String letter) {//converts string to integer
         if (letter.equals("A") || letter.equals("0A"))
             return 10;
@@ -1154,6 +1172,7 @@ public class MemoryDesign {
             return Integer.parseInt(letter);
     }
 
+    //checks register value
     public boolean checkregistervalue(int value) {
         if (value > 16 || value < 0)
             return false;
@@ -1161,6 +1180,7 @@ public class MemoryDesign {
             return true;
     }
 
+    // checks opcode value
     public boolean checkopcodevalue(int value) {
         if (value < 16)
             return false;
